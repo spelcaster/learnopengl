@@ -12,7 +12,7 @@ const GLuint kWidth  = 800;
 const GLuint kHeight = 600;
 
 // prototypes
-void keyEventHandler (GLFWwindow*, int, int, int, int);
+void event_handler (GLFWwindow*, int, int, int, int);
 
 // vertex shader
 const GLchar* vertexShaderSource = "#version 330 core\n"
@@ -68,7 +68,7 @@ int main () {
     glfwMakeContextCurrent(window);
 
     // configure key event handler
-    glfwSetKeyCallback(window, keyEventHandler);
+    glfwSetKeyCallback(window, event_handler);
 
     // use a modern approach to retrieving function pointers and extensions
     glewExperimental = GL_TRUE;
@@ -232,7 +232,7 @@ int main () {
 }
 
 // key event handler
-void keyEventHandler (
+void event_handler (
     GLFWwindow* window, int key, int scancode, int action, int mode
 ) {
     std::cout << "Key: " << key << std::endl;
