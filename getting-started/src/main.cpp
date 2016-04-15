@@ -15,7 +15,7 @@ const GLuint kHeight = 600;
 void event_handler (GLFWwindow*, int, int, int, int);
 
 // vertex shader
-const GLchar* vertexShaderSource = "#version 330 core\n"
+const GLchar* kVertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 position;\n"
     "void main()\n"
     "{\n"
@@ -23,18 +23,18 @@ const GLchar* vertexShaderSource = "#version 330 core\n"
     "}\0";
 
 // fragment shader
-const GLchar* fragmentShaderSource = "#version 330 core\n"
+const GLchar* kFragmentShaderOrange = "#version 330 core\n"
     "out vec4 color;\n"
     "void main()\n"
     "{\n"
     "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\n\0";
 
-const GLchar* fragmentShaderCustomSource = "#version 330 core\n"
+const GLchar* kFragmentShaderYellow = "#version 330 core\n"
     "out vec4 color;\n"
     "void main()\n"
     "{\n"
-    "color = vec4(1.0f, 1.0f, 0.0f, 1.0f)\n"
+    "color = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
     "}\n\0";
 
 int main () {
@@ -86,57 +86,86 @@ int main () {
     GLint success;
     GLchar log[512];
 
-    GLuint vertexShader;
-    GLuint fragmentShader;
-    GLuint shaderProgram;
+    GLuint vertex_shader;
+    GLuint fragment_shader;
+    GLuint shader_program;
+    GLuint shader_program2;
 
     std::cout << "Compile: Vertex Shader" << std::endl;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &kVertexShaderSource, NULL);
+    glCompileShader(vertex_shader);
 
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, log);
+        glGetShaderInfoLog(vertex_shader, 512, NULL, log);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED" << std::endl;
         std::cout << log << std::endl;
     }
 
     std::cout << "Compile: Fragment Shader" << std::endl;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &kFragmentShaderOrange, NULL);
+    glCompileShader(fragment_shader);
 
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, log);
+        glGetShaderInfoLog(fragment_shader, 512, NULL, log);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << std::endl;
         std::cout << log << std::endl;
     }
 
     std::cout << "Linking shaders to program" << std::endl;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    shader_program = glCreateProgram();
+    glAttachShader(shader_program, vertex_shader);
+    glAttachShader(shader_program, fragment_shader);
+    glLinkProgram(shader_program);
 
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, log);
+        glGetProgramInfoLog(shader_program, 512, NULL, log);
+        std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED" << std::endl;
+        std::cout << log << std::endl;
+    }
+
+    std::cout << "Compile: Fragment Shader" << std::endl;
+    glShaderSource(fragment_shader, 1, &kFragmentShaderYellow, NULL);
+    glCompileShader(fragment_shader);
+
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(fragment_shader, 512, NULL, log);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << std::endl;
+        std::cout << log << std::endl;
+    }
+
+    std::cout << "Linking shaders to program" << std::endl;
+    shader_program2 = glCreateProgram();
+    glAttachShader(shader_program2, vertex_shader);
+    glAttachShader(shader_program2, fragment_shader);
+    glLinkProgram(shader_program2);
+
+    glGetProgramiv(shader_program2, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(shader_program2, 512, NULL, log);
         std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED" << std::endl;
         std::cout << log << std::endl;
     }
 
     // after the program link we don't need the shader objects anymore
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 
     // initialize triangle vertices in normalized device coordinates (NDC)
-    GLfloat vertices[] = {
+    GLfloat first_triangle[] = {
          0.5f,  0.5f, 0.0f, // Top Right
          0.5f, -0.5f, 0.0f, // Bottom Right
         -0.5f, -0.5f, 0.0f, // Bottom Left
         -0.5f,  0.5f, 0.0f, // Top Left
+    };
+
+    // initialize triangle vertices in normalized device coordinates (NDC)
+    GLfloat second_triangle[] = {
          0.6f,  0.0f, 0.0f, // Left point
          0.75f,  0.4f, 0.0f, // Top point
          0.9f,  0.0f, 0.0f, // Right point
@@ -145,32 +174,31 @@ int main () {
 
     GLuint indices[] = {
         0, 1, 3, // First Triangle
-        1, 2, 3, // Second Triangle
-        5, 4, 6, // Third Triangle
-        7, 6, 4  // Fourth Triangle
+        1, 2, 3  // Second Triangle
     };
 
     // vertex array object
-    GLuint VAO;
+    GLuint VAO[2];
     // vertex buffer object
-    GLuint VBO;
+    GLuint VBO[2];
     // element buffer object
     GLuint EBO;
 
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    glGenVertexArrays(2, VAO);
+    glGenBuffers(2, VBO);
     glGenBuffers(1, &EBO);
 
     std::cout << "Managing VAO, VBO AND EBO" << std::endl;
-    // ..:: Initialization code (done once (unless your object frequently changes)) ::..
-    // 1. Bind Vertex Array Object
-    glBindVertexArray(VAO);
 
-    // 2. Bind Vertex Buffer Object
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // 3. Bind Element Buffer Object
+    // First triangle
+    glBindVertexArray(VAO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(first_triangle),
+        first_triangle,
+        GL_STATIC_DRAW
+    );
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
@@ -178,22 +206,41 @@ int main () {
         indices,
         GL_STATIC_DRAW
     );
-
-    // 4. Set the vertex attributes pointers
     glVertexAttribPointer(
         0, // which vertex we want to configure
         3, // the size of the vertex attribute
         GL_FLOAT, // the type of the data (a vec* in GLSL consists of floating point values)
         GL_FALSE, // if we want the data to be normalized
-        3 * sizeof(float), // the space between consecutive vextex attribute sets
+        3 * sizeof(GLfloat), // the space between consecutive vextex attribute sets
         (GLvoid*)0 // the offset of where the position data begins in the buffer
     );
     glEnableVertexAttribArray(0);
-
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    // 5. Unbind the VAO
     glBindVertexArray(0);
+
+    // Second triangle
+    glBindVertexArray(VAO[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(second_triangle),
+        second_triangle,
+        GL_STATIC_DRAW
+    );
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(indices),
+        indices,
+        GL_STATIC_DRAW
+    );
+    glVertexAttribPointer(
+        0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0
+    );
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
     // game loop
     while (!glfwWindowShouldClose(window)) {
         // check if any events have been fired (key press/release, mouse moved,
@@ -206,14 +253,20 @@ int main () {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // ..:: Drawing code (in Game Loop) ::..
-        glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
+        glUseProgram(shader_program);
+        glBindVertexArray(VAO[0]);
         glDrawElements(
             GL_TRIANGLES, // the mode we want to draw
-            12, // count or number of elements we'd like to draw
+            6, // count or number of elements we'd like to draw
             GL_UNSIGNED_INT, // the type of the indices
             0 // offset of the EBO
         );
+
+        glUseProgram(shader_program2);
+        glBindVertexArray(VAO[1]);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // unbind Vertex Array Object
         glBindVertexArray(0);
 
         // swap the screen buffers
@@ -221,8 +274,8 @@ int main () {
     }
 
     // Properly de-allocate all resources once they've outlived their purpose
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(2, VAO);
+    glDeleteBuffers(2, VBO);
     glDeleteBuffers(1, &EBO);
 
     // terminate GLFW, clearing any resources allocated by GLFW
