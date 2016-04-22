@@ -17,17 +17,20 @@ void event_handler (GLFWwindow*, int, int, int, int);
 // vertex shader
 const GLchar* kVertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 position;\n"
+    "out vec4 orange_color;\n"
     "void main()\n"
     "{\n"
     "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
+    "orange_color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\0";
 
 // fragment shader
 const GLchar* kFragmentShaderOrange = "#version 330 core\n"
+    "in vec4 orange_color;\n"
     "out vec4 color;\n"
     "void main()\n"
     "{\n"
-    "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "color = orange_color;\n"
     "}\n\0";
 
 const GLchar* kFragmentShaderYellow = "#version 330 core\n"
