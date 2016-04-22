@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 // GLEW
 #define GLEW_STATIC
@@ -33,11 +34,12 @@ const GLchar* kFragmentShaderOrange = "#version 330 core\n"
     "color = orange_color;\n"
     "}\n\0";
 
-const GLchar* kFragmentShaderYellow = "#version 330 core\n"
+const GLchar* kFragmentShaderDynamic = "#version 330 core\n"
     "out vec4 color;\n"
+    "uniform vec4 dynamic_color;\n"
     "void main()\n"
     "{\n"
-    "color = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
+    "color = dynamic_color;\n"
     "}\n\0";
 
 int main () {
@@ -132,7 +134,7 @@ int main () {
     }
 
     std::cout << "Compile: Fragment Shader" << std::endl;
-    glShaderSource(fragment_shader, 1, &kFragmentShaderYellow, NULL);
+    glShaderSource(fragment_shader, 1, &kFragmentShaderDynamic, NULL);
     glCompileShader(fragment_shader);
 
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
@@ -266,6 +268,15 @@ int main () {
         );
 
         glUseProgram(shader_program2);
+
+        GLfloat time = glfwGetTime();
+        GLfloat green_value = (sin(time) / 2) + 0.5;
+        GLint location = glGetUniformLocation(
+            shader_program2, "dynamic_color"
+        );
+
+        glUniform4f(location, 0.0f, green_value, 0.0f, 1.0f);
+
         glBindVertexArray(VAO[1]);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
