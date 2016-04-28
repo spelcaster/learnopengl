@@ -8,6 +8,8 @@
 // GLFW
 #include <GLFW/glfw3.h>
 
+#include "Shader.hpp"
+
 // window dimension
 const GLuint kWidth  = 800;
 const GLuint kHeight = 600;
@@ -61,78 +63,8 @@ int main () {
     // define viewport dimensions
     glViewport(0, 0, kWidth, kHeight);
 
-    GLint success;
-    GLchar log[512];
-
-    GLuint vertex_shader;
-    GLuint fragment_shader;
-    GLuint shader_program;
-    GLuint shader_program2;
-
-    std::cout << "Compile: Vertex Shader" << std::endl;
-    vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &kVertexShaderSource, NULL);
-    glCompileShader(vertex_shader);
-
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertex_shader, 512, NULL, log);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED" << std::endl;
-        std::cout << log << std::endl;
-    }
-
-    std::cout << "Compile: Fragment Shader" << std::endl;
-    fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &kFragmentShader, NULL);
-    glCompileShader(fragment_shader);
-
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragment_shader, 512, NULL, log);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << std::endl;
-        std::cout << log << std::endl;
-    }
-
-    std::cout << "Linking shaders to program" << std::endl;
-    shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shader_program, 512, NULL, log);
-        std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED" << std::endl;
-        std::cout << log << std::endl;
-    }
-
-    std::cout << "Compile: Fragment Shader" << std::endl;
-    glShaderSource(fragment_shader, 1, &kFragmentShaderDynamic, NULL);
-    glCompileShader(fragment_shader);
-
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragment_shader, 512, NULL, log);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED" << std::endl;
-        std::cout << log << std::endl;
-    }
-
-    std::cout << "Linking shaders to program" << std::endl;
-    shader_program2 = glCreateProgram();
-    glAttachShader(shader_program2, vertex_shader);
-    glAttachShader(shader_program2, fragment_shader);
-    glLinkProgram(shader_program2);
-
-    glGetProgramiv(shader_program2, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shader_program2, 512, NULL, log);
-        std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED" << std::endl;
-        std::cout << log << std::endl;
-    }
-
-    // after the program link we don't need the shader objects anymore
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    Shader *shader1 = new Shader("./shader/vshader.vs", "./shader/fshader.frag");
+    Shader *shader2 = new Shader("./shader/vshader.vs", "./shader/fshader1.frag");
 
     // initialize triangle vertices in normalized device coordinates (NDC)
     GLfloat first_triangle[] = {
@@ -242,7 +174,7 @@ int main () {
         glClear(GL_COLOR_BUFFER_BIT);
 
         // ..:: Drawing code (in Game Loop) ::..
-        glUseProgram(shader_program);
+        shader1->use();
         glBindVertexArray(VAO[0]);
         glDrawElements(
             GL_TRIANGLES, // the mode we want to draw
@@ -251,12 +183,11 @@ int main () {
             0 // offset of the EBO
         );
 
-        glUseProgram(shader_program2);
-
+        shader2->use();
         GLfloat time = glfwGetTime();
         GLfloat green_value = (sin(time) / 2) + 0.5;
         GLint location = glGetUniformLocation(
-            shader_program2, "dynamic_color"
+            shader2->getProgram(), "dynamic_color"
         );
 
         glUniform4f(location, 0.0f, green_value, 0.0f, 1.0f);
