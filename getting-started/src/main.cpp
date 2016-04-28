@@ -15,34 +15,6 @@ const GLuint kHeight = 600;
 // prototypes
 void event_handler (GLFWwindow*, int, int, int, int);
 
-// vertex shader
-const GLchar* kVertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 position;\n"
-    "layout (location = 1) in vec3 color;\n"
-    "out vec3 custom_color;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(position, 1.0);\n"
-    "custom_color = color;\n"
-    "}\n\0";
-
-// fragment shader
-const GLchar* kFragmentShader = "#version 330 core\n"
-    "in vec3 custom_color;\n"
-    "out vec4 color;\n"
-    "void main()\n"
-    "{\n"
-    "color = vec4(custom_color, 1.0);\n"
-    "}\n\0";
-
-const GLchar* kFragmentShaderDynamic = "#version 330 core\n"
-    "out vec4 color;\n"
-    "uniform vec4 dynamic_color;\n"
-    "void main()\n"
-    "{\n"
-    "color = dynamic_color;\n"
-    "}\n\0";
-
 int main () {
     std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
 
