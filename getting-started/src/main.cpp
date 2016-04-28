@@ -18,20 +18,21 @@ void event_handler (GLFWwindow*, int, int, int, int);
 // vertex shader
 const GLchar* kVertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 position;\n"
-    "out vec4 orange_color;\n"
+    "layout (location = 1) in vec3 color;\n"
+    "out vec3 custom_color;\n"
     "void main()\n"
     "{\n"
-    "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-    "orange_color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\0";
+    "gl_Position = vec4(position, 1.0);\n"
+    "custom_color = color;\n"
+    "}\n\0";
 
 // fragment shader
-const GLchar* kFragmentShaderOrange = "#version 330 core\n"
-    "in vec4 orange_color;\n"
+const GLchar* kFragmentShader = "#version 330 core\n"
+    "in vec3 custom_color;\n"
     "out vec4 color;\n"
     "void main()\n"
     "{\n"
-    "color = orange_color;\n"
+    "color = vec4(custom_color, 1.0);\n"
     "}\n\0";
 
 const GLchar* kFragmentShaderDynamic = "#version 330 core\n"
@@ -110,7 +111,7 @@ int main () {
 
     std::cout << "Compile: Fragment Shader" << std::endl;
     fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &kFragmentShaderOrange, NULL);
+    glShaderSource(fragment_shader, 1, &kFragmentShader, NULL);
     glCompileShader(fragment_shader);
 
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
@@ -163,10 +164,10 @@ int main () {
 
     // initialize triangle vertices in normalized device coordinates (NDC)
     GLfloat first_triangle[] = {
-         0.5f,  0.5f, 0.0f, // Top Right
-         0.5f, -0.5f, 0.0f, // Bottom Right
-        -0.5f, -0.5f, 0.0f, // Bottom Left
-        -0.5f,  0.5f, 0.0f, // Top Left
+         0.5f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Blue Top Right
+         0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // Red Bottom Right
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, // Blue Bottom Left
+        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // Green Top Left
     };
 
     // initialize triangle vertices in normalized device coordinates (NDC)
@@ -211,15 +212,26 @@ int main () {
         indices,
         GL_STATIC_DRAW
     );
+    // vertex_shader position
     glVertexAttribPointer(
         0, // which vertex we want to configure
         3, // the size of the vertex attribute
         GL_FLOAT, // the type of the data (a vec* in GLSL consists of floating point values)
         GL_FALSE, // if we want the data to be normalized
-        3 * sizeof(GLfloat), // the space between consecutive vextex attribute sets
+        6 * sizeof(GLfloat), // the space between consecutive vextex attribute sets
         (GLvoid*)0 // the offset of where the position data begins in the buffer
     );
     glEnableVertexAttribArray(0);
+    // vertex_shader color
+    glVertexAttribPointer(
+        1, // which vertex we want to configure
+        3, // the size of the vertex attribute
+        GL_FLOAT, // the type of the data (a vec* in GLSL consists of floating point values)
+        GL_FALSE, // if we want the data to be normalized
+        6 * sizeof(GLfloat), // the space between consecutive vextex attribute sets
+        (GLvoid*) (3 * sizeof(GLfloat)) // the offset of where the position data begins in the buffer
+    );
+    glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
