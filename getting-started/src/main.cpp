@@ -13,9 +13,11 @@
 // prototypes
 void event_handler (GLFWwindow*, int, int, int, int);
 void hello_triangle ();
+void shader_exercise1 ();
 
 int main () {
-    hello_triangle();
+    //hello_triangle();
+    shader_exercise1();
     return 0;
 }
 
