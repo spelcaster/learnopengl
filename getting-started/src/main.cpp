@@ -14,10 +14,12 @@
 void event_handler (GLFWwindow*, int, int, int, int);
 void hello_triangle ();
 void shader_exercise1 ();
+void shader_exercise2 ();
 
 int main () {
     //hello_triangle();
-    shader_exercise1();
+    //shader_exercise1();
+    shader_exercise2();
     return 0;
 }
 
