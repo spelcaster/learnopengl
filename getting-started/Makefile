@@ -21,7 +21,7 @@ INCLUDES  =
 LDFLAGS =
 
 # define any libraries to link
-LDLIBS = -lGL -lGLEW -lglfw -lX11 -lXrandr -lXi -lpthread
+LDLIBS = -lGL -lGLEW -lglfw -lX11 -lXrandr -lXi -lpthread -lSOIL
 
 TEST_LDLIBS += -lgmock -lgtest
 
